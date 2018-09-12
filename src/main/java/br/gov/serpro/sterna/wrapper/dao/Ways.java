@@ -133,6 +133,46 @@ public class Ways {
      * @return
      */
     public List listGroup(String value) {
+        HttpURLConnection c = null;
+        try {
+            URL u = new URL(config.getUrl() + "api/ways/group/" + value);
+            c = (HttpURLConnection) u.openConnection();
+            c.setRequestMethod("GET");
+            c.setRequestProperty("Content-length", "0");
+            c.setRequestProperty("Content-Type", "application/json; charset=utf-8");
+            c.setRequestProperty("Accept-Charset", "UTF-8");
+            c.setUseCaches(false);
+            c.setAllowUserInteraction(false);
+            c.connect();
+            int status = c.getResponseCode();
+
+            switch (status) {
+                case 200:
+                case 201:
+                    BufferedReader br = new BufferedReader(new InputStreamReader(c.getInputStream(), "UTF-8"));
+                    StringBuilder sb = new StringBuilder();
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        sb.append(line).append("\n");
+                    }
+                    br.close();
+                    return (new Gson().fromJson(sb.toString(), List.class));
+            }
+
+        } catch (MalformedURLException ex) {
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            if (c != null) {
+                try {
+                    c.disconnect();
+                } catch (Exception ex) {
+                    Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+
+        }
         return null;
     }
 
